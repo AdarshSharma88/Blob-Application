@@ -9,12 +9,21 @@ const postRoutes = require('./routes/posts');
 
 const app = express();
 
-// Enable CORS for all origins
+// Enable CORS for specific origins
+const allowedOrigins = ["http://13.201.89.59:5000"];  // Frontend's IP/Domain
 app.use(cors({
-  origin: "*",  // Allows all origins
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      // Allow requests from the allowed origins or no origin (for local testing)
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,  // Allow cookies to be sent with requests (if necessary)
+  credentials: true,  // Allow cookies (if needed)
 }));
+
 
 // Serve the React app from the 'build' folder
 const buildpath = path.join(__dirname, "../client/dist");
