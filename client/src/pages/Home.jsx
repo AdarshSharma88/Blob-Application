@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Home() {
   const [posts, setPosts] = useState([]);
-  const [user, setUser] = useState(null); // State to store logged-in user data
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+
 
   // Fetch posts on component mount
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/posts");
+        const res = await axios.get(`${apiUrl}/api/posts`);
         setPosts(res.data.posts); // Access the "posts" array in the response
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -28,16 +29,15 @@ function Home() {
         setUser(JSON.parse(storedUser));
       } catch (error) {
         console.error("Error parsing user data from localStorage:", error);
-        // Handle potential parsing errors gracefully (e.g., clear invalid data)
       }
     }
-  }, []);
+  }, [localStorage.getItem("user")]);
 
   const handleDelete = async (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        await axios.delete(`${apiUrl}/api/posts/${postId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPosts(posts.filter((post) => post._id !== postId)); // Update state locally
@@ -54,7 +54,6 @@ function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post) => (
           <div key={post._id} className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300 ease-in-out">
-            <img src="/path-to-your-image.jpg" alt="Post" className="w-full h-48 object-cover" />
             <div className="p-6">
               <h3 className="text-2xl font-semibold text-gray-800">{post.title}</h3>
               <p className="text-gray-600 mt-2 text-sm">{post.content.substring(0, 150)}...</p>
@@ -63,7 +62,7 @@ function Home() {
                 <Link to={`/posts/${post._id}`} className="text-blue-500 hover:text-blue-700 font-medium">
                   Read More
                 </Link>
-                {user && user.id === post.author._id && ( // Check if logged-in user is author
+                {user && user.id === post.author._id && (
                   <>
                     <Link to={`/edit/${post._id}`} className="ml-4 text-green-500 hover:text-green-700 font-medium">
                       Edit

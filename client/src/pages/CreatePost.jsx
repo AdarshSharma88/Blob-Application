@@ -4,13 +4,14 @@ import axios from "axios";
 function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token"); // Assume token is stored in localStorage after login
       await axios.post(
-        "http://localhost:5000/api/posts",
+        `${apiUrl}/api/posts`,
         { title, content },
         { headers: { Authorization: `Bearer ${token}` } }
       );

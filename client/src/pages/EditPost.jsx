@@ -8,11 +8,12 @@ function EditPost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
+        const res = await axios.get(`${apiUrl}/api/posts/${id}`);
         setTitle(res.data.post.title);
         setContent(res.data.post.content);
         setLastUpdated(res.data.post.updatedAt || res.data.post.createdAt);
@@ -28,7 +29,7 @@ function EditPost() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/posts/${id}`,
+        `${apiUrl}/api/posts/${id}`,
         { title, content },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -43,7 +44,7 @@ function EditPost() {
     if (window.confirm("Are you sure you want to delete this post?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:5000/api/posts/${id}`, {
+        await axios.delete(`${apiUrl}/api/posts/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Post deleted successfully");

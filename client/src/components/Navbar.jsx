@@ -1,22 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+
 function Navbar() {
   const navigate = useNavigate();
   const [username, setUsername] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  // Create a separate variable for the profile picture URL
+  const profilePictureUrl = profilePicture ? `${apiUrl}${profilePicture}` : null;
 
   useEffect(() => {
-    // Retrieve the username from local storage or an API
-    const user = JSON.parse(localStorage.getItem("user")); // Assuming "user" is stored in localStorage
-    if (user) {
+    // This effect will run whenever the 'user' item in localStorage changes.
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
       setUsername(user.username);
+      setProfilePicture(user.profilePicture); // Set the profile picture URL
     }
-  }, [localStorage.getItem("user")]);
+  }, [localStorage.getItem("user")]);  // Listen for changes in 'user' in localStorage
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUsername(null);
+    setProfilePicture(null);
     navigate("/login");
   };
 
@@ -54,7 +63,14 @@ function Navbar() {
                   Create Post
                 </Link>
               </li>
-              <li>
+              <li className="flex items-center">
+                {profilePictureUrl && (
+                  <img
+                    src={profilePictureUrl}  // Use the variable here for the image source
+                    alt="Profile Picture"
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                )}
                 <span className="text-gray-200 font-medium">Welcome, {username}!</span>
               </li>
               <li>

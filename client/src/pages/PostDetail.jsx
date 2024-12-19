@@ -7,11 +7,13 @@ function PostDetail() {
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [user, setUser] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
+        const res = await axios.get(`${apiUrl}/api/posts/${id}`);
         setPost(res.data.post); // Ensure you access the `post` object in the response
       } catch (err) {
         console.error("Error fetching post", err);
@@ -36,7 +38,7 @@ function PostDetail() {
     if (window.confirm("Are you sure you want to delete this post?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:5000/api/posts/${id}`, {
+        await axios.delete(`${apiUrl}/api/posts/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Post deleted successfully");

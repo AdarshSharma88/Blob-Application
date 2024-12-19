@@ -2,19 +2,40 @@ import { useState } from "react";
 import axios from "axios";
 
 function Register() {
-  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [profilePicture, setProfilePicture] = useState(null); // For handling the profile picture
+  const apiUrl = import.meta.env.VITE_API_URL;
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setProfilePicture(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const data = new FormData();
+    data.append("username", formData.username);
+    data.append("email", formData.email);
+    data.append("password", formData.password);
+    if (profilePicture) {
+      data.append("profilePicture", profilePicture);
+    }
+
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
+      await axios.post(`${apiUrl}/api/auth/register`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       alert("Registration successful!");
     } catch (err) {
-      alert("Error: " + err.response.data.error);
+      alert("Error: " + err.response?.data?.error || err.message);
     }
   };
 
@@ -22,7 +43,7 @@ function Register() {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Create Account</h2>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700">Username</label>
@@ -36,7 +57,7 @@ function Register() {
               required
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700">Email</label>
             <input
@@ -49,8 +70,8 @@ function Register() {
               required
             />
           </div>
-          
-          <div className="mb-6">
+
+          <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700">Password</label>
             <input
               name="password"
@@ -62,18 +83,26 @@ function Register() {
               required
             />
           </div>
-          
-          <button 
-            type="submit" 
+
+          <div className="mb-4">
+            <label htmlFor="profilePicture" className="block text-gray-700">Profile Picture</label>
+            <input
+              name="profilePicture"
+              type="file"
+              id="profilePicture"
+              onChange={handleFileChange}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-md"
+              accept="image/*"
+            />
+          </div>
+
+          <button
+            type="submit"
             className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Register
           </button>
         </form>
-
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">Already have an account? <a href="/login" className="text-blue-500 hover:text-blue-700">Login here</a></p>
-        </div>
       </div>
     </div>
   );
