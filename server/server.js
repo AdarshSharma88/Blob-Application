@@ -9,12 +9,15 @@ const postRoutes = require('./routes/posts');
 
 const app = express();
 
-// Enable CORS for specific origins
-const allowedOrigins = ["http://13.201.89.59:5000"];  // Frontend's IP/Domain
+const allowedOrigins = [
+  "http://localhost:5000",    // Localhost for development
+  "http://13.201.89.59:5000"  // Public IP for production or testing
+];
+
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests from the specified origins
     if (allowedOrigins.includes(origin) || !origin) {
-      // Allow requests from the allowed origins or no origin (for local testing)
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -23,6 +26,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,  // Allow cookies (if needed)
 }));
+
 
 
 // Serve the React app from the 'build' folder
