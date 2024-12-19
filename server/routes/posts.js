@@ -1,7 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
 const Post = require('../models/post');
-const User = require('../models/user');
 const router = express.Router();
 require('dotenv').config();
 
@@ -22,16 +23,44 @@ const authenticate = (req, res, next) => {
   });
 };
 
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only JPEG, PNG, and JPG file types are allowed'));
+  }
+};
+
+const upload = multer({ storage, fileFilter });
+
 // Create a new post
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, upload.single('image'), async (req, res) => {
   const { title, content } = req.body;
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
   }
 
   try {
-    const newPost = new Post({ title, content, author: req.userId });
+    const newPost = new Post({
+      title,
+      content,
+      image: imagePath,
+      author: req.userId,
+    });
     await newPost.save();
     res.status(201).json({ message: 'Post created successfully', post: newPost });
   } catch (err) {
@@ -63,12 +92,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update a post
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, upload.single('image'), async (req, res) => {
   const { title, content } = req.body;
-
-  if (!title && !content) {
-    return res.status(400).json({ error: 'At least one field (title or content) is required to update' });
-  }
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const post = await Post.findById(req.params.id);
@@ -81,10 +107,14 @@ router.put('/:id', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized to update this post' });
     }
 
+    // Update post fields
     post.title = title || post.title;
     post.content = content || post.content;
-    const updatedPost = await post.save();
+    if (imagePath) {
+      post.image = imagePath;
+    }
 
+    const updatedPost = await post.save();
     res.status(200).json({ message: 'Post updated successfully', post: updatedPost });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update post', details: err.message });

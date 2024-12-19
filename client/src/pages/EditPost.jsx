@@ -7,6 +7,8 @@ function EditPost() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [image, setImage] = useState(null); // To handle the new image file
+  const [imagePreview, setImagePreview] = useState(""); // To show a preview of the uploaded image
   const [lastUpdated, setLastUpdated] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -16,6 +18,9 @@ function EditPost() {
         const res = await axios.get(`${apiUrl}/api/posts/${id}`);
         setTitle(res.data.post.title);
         setContent(res.data.post.content);
+        if (res.data.post.image) {
+          setImagePreview(`${apiUrl}${res.data.post.image}`);
+        }
         setLastUpdated(res.data.post.updatedAt || res.data.post.createdAt);
       } catch (err) {
         console.error("Error fetching post", err);
@@ -24,15 +29,33 @@ function EditPost() {
     fetchPost();
   }, [id]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${apiUrl}/api/posts/${id}`,
-        { title, content },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      if (image) {
+        formData.append("image", image);
+      }
+
+      await axios.put(`${apiUrl}/api/posts/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       alert("Post updated successfully");
       navigate("/");
     } catch (err) {
@@ -79,9 +102,26 @@ function EditPost() {
             required
           ></textarea>
         </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Image</label>
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Selected Preview"
+              className="w-full h-40 object-cover mb-2 rounded"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
         {lastUpdated && (
           <p className="text-gray-500 text-sm mb-4">
-            Last updated: {new Date(lastUpdated).toLocaleDateString()} at {new Date(lastUpdated).toLocaleTimeString()}
+            Last updated: {new Date(lastUpdated).toLocaleDateString()} at{" "}
+            {new Date(lastUpdated).toLocaleTimeString()}
           </p>
         )}
         <div className="flex justify-between">
