@@ -7,16 +7,20 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
-    localStorage.setItem("token", response.data.token);  // Store the token
-    navigate("/");  // Redirect to home page after login
-  } catch (err) {
-    alert("Login failed: " + err.response.data.error);
-  }
-};
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+
+      // Save the token and user details in local storage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user details
+
+      navigate("/"); // Redirect to the home page after login
+    } catch (err) {
+      alert("Login failed: " + (err.response?.data?.error || err.message));
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto px-4 py-6">

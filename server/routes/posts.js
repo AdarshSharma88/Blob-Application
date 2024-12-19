@@ -8,11 +8,16 @@ require('dotenv').config();
 // Middleware to verify JWT
 const authenticate = (req, res, next) => {
   const token = req.headers['authorization'];
-  if (!token) return res.status(403).json({ error: 'Token missing' });
+  if (!token) {
+    return res.status(403).json({ error: 'Authorization token missing' });
+  }
 
-  jwt.verify(token.split(' ')[1], process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(401).json({ error: 'Invalid token' });
-    req.userId = decoded.id;
+  const formattedToken = token.split(' ')[1];
+  jwt.verify(formattedToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    req.userId = decoded.id; // Attach user ID to request
     next();
   });
 };
@@ -20,12 +25,17 @@ const authenticate = (req, res, next) => {
 // Create a new post
 router.post('/', authenticate, async (req, res) => {
   const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Title and content are required' });
+  }
+
   try {
     const newPost = new Post({ title, content, author: req.userId });
     await newPost.save();
-    res.status(201).json(newPost);
+    res.status(201).json({ message: 'Post created successfully', post: newPost });
   } catch (err) {
-    res.status(500).json({ error: 'Post creation failed', details: err });
+    res.status(500).json({ error: 'Failed to create post', details: err.message });
   }
 });
 
@@ -33,9 +43,9 @@ router.post('/', authenticate, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().populate('author', 'username');
-    res.json(posts);
+    res.status(200).json({ posts });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch posts', details: err });
+    res.status(500).json({ error: 'Failed to fetch posts', details: err.message });
   }
 });
 
@@ -43,23 +53,41 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate('author', 'username');
-    res.json(post);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    res.status(200).json({ post });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch the post', details: err });
+    res.status(500).json({ error: 'Failed to fetch the post', details: err.message });
   }
 });
 
 // Update a post
 router.put('/:id', authenticate, async (req, res) => {
+  const { title, content } = req.body;
+
+  if (!title && !content) {
+    return res.status(400).json({ error: 'At least one field (title or content) is required to update' });
+  }
+
   try {
     const post = await Post.findById(req.params.id);
-    if (post.author.toString() !== req.userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
     }
-    const updatedPost = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updatedPost);
+
+    if (post.author.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Unauthorized to update this post' });
+    }
+
+    post.title = title || post.title;
+    post.content = content || post.content;
+    const updatedPost = await post.save();
+
+    res.status(200).json({ message: 'Post updated successfully', post: updatedPost });
   } catch (err) {
-    res.status(500).json({ error: 'Post update failed', details: err });
+    res.status(500).json({ error: 'Failed to update post', details: err.message });
   }
 });
 
@@ -67,13 +95,19 @@ router.put('/:id', authenticate, async (req, res) => {
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (post.author.toString() !== req.userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
     }
+
+    if (post.author.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Unauthorized to delete this post' });
+    }
+
     await Post.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Post deleted' });
+    res.status(200).json({ message: 'Post deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Post deletion failed', details: err });
+    res.status(500).json({ error: 'Failed to delete post', details: err.message });
   }
 });
 
