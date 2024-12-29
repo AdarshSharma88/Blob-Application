@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',  // Your backend API URL
+        target: 'http://54.243.8.91:8080',  // Your backend API URL
         changeOrigin: true,
         secure: false,  // Set to true if your backend is using HTTPS
         rewrite: (path) => path.replace(/^\/api/, '')  // Removes '/api' prefix when sending to backend

@@ -12,7 +12,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:8080",    // Localhost for development
   "http://localhost:5173",    // Localhost for development
-  "http://13.201.89.59:5000"  // Public IP for production or testing
+  "http://54.243.8.91:8080"  // Public IP for production or testing
 ];
 
 app.use(cors({
