@@ -13,44 +13,48 @@ function Login() {
     try {
       const response = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
 
-      // Save the token and user details in local storage
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user details
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      navigate("/"); // Redirect to the home page after login
+      navigate("/");
     } catch (err) {
       alert("Login failed: " + (err.response?.data?.error || err.message));
     }
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
-      <form onSubmit={handleLogin} className="bg-white p-8 rounded-lg shadow-md">
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            id="email"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            id="password"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-          Login
-        </button>
-      </form>
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="w-full max-w-sm bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-center text-white mb-4">Login</h2>
+        <form onSubmit={handleLogin}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-300 mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              className="w-full px-3 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 bg-gray-700 text-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-300 mb-2">Password</label>
+            <input
+              type="password"
+              id="password"
+              className="w-full px-3 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 bg-gray-700 text-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-2 bg-gray-700 text-white font-semibold rounded hover:bg-gray-600"
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

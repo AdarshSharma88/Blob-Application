@@ -8,7 +8,6 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Fetch posts on component mount
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -23,7 +22,6 @@ function Home() {
     fetchPosts();
   }, []);
 
-  // Load user data from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -42,7 +40,7 @@ function Home() {
         await axios.delete(`${apiUrl}/api/posts/${postId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setPosts(posts.filter((post) => post._id !== postId)); // Update state locally
+        setPosts(posts.filter((post) => post._id !== postId));
         alert("Post deleted successfully");
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -51,53 +49,47 @@ function Home() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Blog Posts</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Blog Posts</h1>
       {loading ? (
-        <div className="text-center mt-52">
-          <div className="loader border-t-4 border-blue-500 rounded-full w-12 h-12 mx-auto mb-4 animate-spin"></div>
-          <p className="text-gray-600">Loading posts...</p>
-        </div>
+        <p className="text-center text-gray-600">Loading posts...</p>
       ) : posts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
-            <div
-              key={post._id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300 ease-in-out"
-            >
-              {post.image && (
-                <img
+            <div key={post._id} className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <img
                   src={`${apiUrl}${post.image}`}
                   alt={post.title}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-800">{post.title}</h3>
-                <p className="text-gray-600 mt-2 text-sm">{post.content.substring(0, 150)}...</p>
-                <p className="text-gray-500 text-xs mt-2">
-                  Published on: {new Date(post.createdAt).toLocaleDateString()} at{" "}
-                  {new Date(post.createdAt).toLocaleTimeString()}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-semibold text-gray-800">{post.title}</h3>
+                <p className="text-sm text-gray-600 mt-2">{post.content.substring(0, 100)}...</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(post.createdAt).toLocaleDateString()}
                 </p>
-                <div className="mt-4">
-                  <Link to={`/posts/${post._id}`} className="text-blue-500 hover:text-blue-700 font-medium">
+                <div className="mt-3 flex justify-between items-center">
+                  <Link
+                    to={`/posts/${post._id}`}
+                    className="text-blue-600 text-sm hover:underline"
+                  >
                     Read More
                   </Link>
                   {user && user.id === post.author._id && (
-                    <>
+                    <div className="flex space-x-3">
                       <Link
                         to={`/edit/${post._id}`}
-                        className="ml-4 text-green-500 hover:text-green-700 font-medium"
+                        className="text-green-600 text-sm hover:underline"
                       >
                         Edit
                       </Link>
                       <button
                         onClick={() => handleDelete(post._id)}
-                        className="ml-4 text-red-500 hover:text-red-700 font-medium"
+                        className="text-red-600 text-sm hover:underline"
                       >
                         Delete
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
@@ -105,19 +97,19 @@ function Home() {
           ))}
         </div>
       ) : (
-        <div className="text-center mt-8">
+        <div className="text-center text-gray-600">
           {user ? (
             <>
-              <p className="text-gray-600 text-lg">No posts available. Create the first post now!</p>
+              <p>No posts available. Create the first post now!</p>
               <Link
                 to="/create"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition"
               >
                 Create Post
               </Link>
             </>
           ) : (
-            <p className="text-gray-600 text-lg">No posts available. Log in to create posts!</p>
+            <p>No posts available. Log in to create posts!</p>
           )}
         </div>
       )}

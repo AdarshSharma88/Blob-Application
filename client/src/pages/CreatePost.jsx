@@ -4,7 +4,7 @@ import axios from "axios";
 function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null); // State for the image file
+  const [image, setImage] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
@@ -17,7 +17,6 @@ function CreatePost() {
         return;
       }
 
-      // Create FormData to send text and file data
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
@@ -28,7 +27,7 @@ function CreatePost() {
       const response = await axios.post(`${apiUrl}/api/posts`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data", // Required for file uploads
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -51,42 +50,47 @@ function CreatePost() {
 
   return (
     <div className="max-w-xl mx-auto mt-8">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Create a New Post</h2>
+      <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg shadow-xl">
+        <h2 className="text-3xl font-bold text-white mb-6">Create a New Post</h2>
 
-        <div className="mb-4">
-          <label className="block text-gray-700">Title</label>
+        <div className="mb-6">
+          <label className="block text-white font-medium mb-2">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border-2 border-gray-600 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+            placeholder="Enter the post title"
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700">Content</label>
+        <div className="mb-6">
+          <label className="block text-white font-medium mb-2">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border-2 border-gray-600 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
             rows="5"
+            placeholder="Write your post content here..."
             required
           ></textarea>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700">Image</label>
+        <div className="mb-6">
+          <label className="block text-white font-medium mb-2">Image</label>
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border-2 border-gray-600 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
           />
         </div>
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="w-full bg-gray-700 text-white font-bold px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-200"
+        >
           Submit
         </button>
       </form>

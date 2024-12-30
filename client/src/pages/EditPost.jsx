@@ -7,8 +7,8 @@ function EditPost() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null); // To handle the new image file
-  const [imagePreview, setImagePreview] = useState(""); // To show a preview of the uploaded image
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -79,59 +79,59 @@ function EditPost() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8">
-      <form onSubmit={handleUpdate} className="bg-white p-6 rounded shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Edit Post</h2>
+    <div className="max-w-2xl mx-auto mt-8">
+      <form onSubmit={handleUpdate} className="bg-gray-900 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-white mb-4">Edit Post</h2>
         <div className="mb-4">
-          <label className="block text-gray-700">Title</label>
+          <label className="block text-gray-300 mb-1">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full px-3 py-2 rounded-md border border-gray-700 focus:ring focus:ring-purple-500"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Content</label>
+          <label className="block text-gray-300 mb-1">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full px-3 py-2 rounded-md border border-gray-700 focus:ring focus:ring-purple-500"
             rows="5"
             required
           ></textarea>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Image</label>
+          <label className="block text-gray-300 mb-1">Image</label>
           {imagePreview && (
             <img
               src={imagePreview}
               alt="Selected Preview"
-              className="w-full h-40 object-cover mb-2 rounded"
+              className="w-full h-40 object-cover mb-2 rounded-md"
             />
           )}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full px-3 py-2 rounded-md border border-gray-700 focus:ring focus:ring-purple-500"
           />
         </div>
         {lastUpdated && (
-          <p className="text-gray-500 text-sm mb-4">
-            Last updated: {new Date(lastUpdated).toLocaleDateString()} at{" "}
+          <p className="text-gray-400 text-sm mb-4">
+            Last updated: {new Date(lastUpdated).toLocaleDateString()} at {" "}
             {new Date(lastUpdated).toLocaleTimeString()}
           </p>
         )}
         <div className="flex justify-between">
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-500">
             Update
           </button>
           <button
             type="button"
             onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded"
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500"
           >
             Delete
           </button>
